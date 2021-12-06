@@ -26,5 +26,7 @@ public:
 
 	ofxKinectV2 kinect;
 	ofTexture texture;
+	ofTexture background;
+	ofTexture substracted;
 
 };

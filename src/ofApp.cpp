@@ -10,12 +10,15 @@ void ofApp::update() {
 	kinect.update();
 	if (kinect.isFrameNew()) {
 		texture.loadData(kinect.getRgbPixels());
+		//substracted.loadData(texture.getTextureMatrix - background.getTextureMatrix);
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
 	texture.draw(0, 0, 960, 540);
+	background.draw(960, 0, 960, 540);
+	substracted.draw(0, 540, 960, 540);
 }
 
 void ofApp::exit() {
@@ -24,7 +27,10 @@ void ofApp::exit() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
-
+	if (key == 's') { 
+		if (!kinect.isFrameNew()) { printf("No new frame available"); return; }
+		background.loadData(kinect.getRgbPixels());
+	}
 }
 
 //--------------------------------------------------------------
@@ -76,3 +82,4 @@ void ofApp::gotMessage(ofMessage msg) {
 void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 }
+
