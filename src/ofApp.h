@@ -26,7 +26,17 @@ public:
 
 	ofxKinectV2 kinect;
 	ofTexture texture;
-	ofTexture background;
-	ofTexture substracted;
+	/*ofTexture grayImg;
+	ofTexture backgroundImg;
+	ofTexture subtractedImg;*/
+	ofVideoGrabber webCam;
+	ofxCvColorImage colorImg;
+	ofxCvGrayscaleImage grayImg;
+	ofxCvGrayscaleImage grayBg;
+	ofxCvGrayscaleImage grayDiff;
+	ofxCvContourFinder contourFinder;
+
+	int						thresholdValue;
+	bool					bLearnBackground;
 
 };

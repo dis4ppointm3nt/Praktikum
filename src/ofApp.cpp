@@ -3,22 +3,75 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
 	kinect.open();
+
+	webCam.setVerbose(true);
+	webCam.setup(320, 240);
+
+	colorImg.allocate(320, 240);
+	grayImg.allocate(320, 240);
+	grayBg.allocate(320, 240);
+	grayDiff.allocate(320, 240);
+	
+
+
+	bLearnBackground = true;
+	thresholdValue = 80;
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
 	kinect.update();
-	if (kinect.isFrameNew()) {
-		texture.loadData(kinect.getRgbPixels());
-		//substracted.loadData(texture.getTextureMatrix - background.getTextureMatrix);
+	webCam.update();
+
+	if (webCam.isFrameNew()) {
+		//texture.loadData(kinect.getRgbPixels());
+		auto cam = kinect.getPixels();
+
+		cam.setNumChannels(3);
+		cam.swapRgb();
+		
+		colorImg.setFromPixels(webCam.getPixels());
+		grayImg.setFromColorImage(colorImg);
+		//grayImg= colorImg;
+
+
+		if (bLearnBackground == true) {
+			grayBg = grayImg; // Note: this is 'operator overloading'
+			bLearnBackground = false; // Latch: only learn it once.
+		}
+	grayDiff.absDiff(grayBg, grayImg);
+
+	grayDiff.threshold(thresholdValue);
+
+	contourFinder.findContours(grayDiff, 20, 25000, 10, true);
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-	texture.draw(0, 0, 960, 540);
-	background.draw(960, 0, 960, 540);
-	substracted.draw(0, 540, 960, 540);
+	/*
+	colorImg.draw(0, 0, 960, 540);
+	grayImg.draw(960, 540, 960, 540);
+	backgroundImg.draw(960, 0, 960, 540);
+	subtractedImg.draw(0, 540, 960, 540);
+	*/
+	//texture.draw(0, 0, 640, 480);
+	//ofBackground(100, 100, 100);
+	ofSetHexColor(0xffffff);
+	colorImg.draw(0, 0, 640, 480);    // The incoming color image
+	grayImg.draw(650, 0, 640, 480);  // A gray version of the incoming video
+	grayBg.draw(20, 490);     // The stored background image
+	//grayDiff.draw(360, 280);  // The thresholded difference image
+
+
+	ofNoFill();
+	
+
+	int numBlobs = contourFinder.nBlobs;
+	for (int i = 0; i < numBlobs; i++) {
+		//contourFinder.blobs[i].draw(360, 540);
+	}
+
 }
 
 void ofApp::exit() {
@@ -27,10 +80,13 @@ void ofApp::exit() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
+	bLearnBackground = true;
+	/*
 	if (key == 's') { 
-		if (!kinect.isFrameNew()) { printf("No new frame available"); return; }
-		background.loadData(kinect.getRgbPixels());
+		if (!kinect.isFrameNew()) { printf(\n"No new frame available"); return; }
+		backgroundImg.loadData(kinect.getRgbPixels());
 	}
+	*/
 }
 
 //--------------------------------------------------------------
