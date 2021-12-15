@@ -24,8 +24,8 @@ public:
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 
-	ofxKinectV2 kinect;
-	ofTexture texture;
+//	ofxKinectV2 kinect;
+//	ofTexture texture;
 	/*ofTexture grayImg;
 	ofTexture backgroundImg;
 	ofTexture subtractedImg;*/
@@ -34,7 +34,10 @@ public:
 	ofxCvGrayscaleImage grayImg;
 	ofxCvGrayscaleImage grayBg;
 	ofxCvGrayscaleImage grayDiff;
-	ofxCvContourFinder contourFinder;
+	ofxCvGrayscaleImage dilatImg;
+	ofxCvGrayscaleImage closingImg;
+	ofxCvContourFinder contourFinder; 
+	ofxCvContourFinder contourFinder2;
 
 	int						thresholdValue;
 	bool					bLearnBackground;

@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	kinect.open();
+	//kinect.open();
 
 	webCam.setVerbose(true);
 	webCam.setup(320, 240);
@@ -11,29 +11,25 @@ void ofApp::setup() {
 	grayImg.allocate(320, 240);
 	grayBg.allocate(320, 240);
 	grayDiff.allocate(320, 240);
-	
+	dilatImg.allocate(320, 240);
+	closingImg.allocate(320, 240);
 
 
 	bLearnBackground = true;
-	thresholdValue = 80;
+	thresholdValue = 30;
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
-	kinect.update();
+	//kinect.update();
 	webCam.update();
 
 	if (webCam.isFrameNew()) {
 		//texture.loadData(kinect.getRgbPixels());
-		auto cam = kinect.getPixels();
 
-		cam.setNumChannels(3);
-		cam.swapRgb();
 		
 		colorImg.setFromPixels(webCam.getPixels());
 		grayImg.setFromColorImage(colorImg);
-		//grayImg= colorImg;
-
 
 		if (bLearnBackground == true) {
 			grayBg = grayImg; // Note: this is 'operator overloading'
@@ -41,9 +37,19 @@ void ofApp::update() {
 		}
 	grayDiff.absDiff(grayBg, grayImg);
 
-	grayDiff.threshold(thresholdValue);
+	grayDiff.blur();
+
+	grayDiff.adaptiveThreshold(3,0);
+
+	//Dilatation mit einer 3x3 Matrix
+	dilatImg = grayDiff;
+	dilatImg.dilate_3x3();
+	//Closing of the Image
+	closingImg = dilatImg;
+	closingImg.erode_3x3();
 
 	contourFinder.findContours(grayDiff, 20, 25000, 10, true);
+	contourFinder2.findContours(closingImg, 20, 25000, 10, true);
 	}
 }
 
@@ -59,11 +65,11 @@ void ofApp::draw() {
 	//ofBackground(100, 100, 100);
 	ofSetHexColor(0xffffff);
 	colorImg.draw(0, 0, 320, 240);    // The incoming color image
-	grayImg.draw(340, 0, 320, 240);  // A gray version of the incoming video
+	grayImg.draw(340, 0, 320, 240);  // A gray version of the incoming video*
 	grayBg.draw(20, 250);     // The stored background image
 	grayDiff.draw(340, 250);  // The thresholded difference image
-
-
+	dilatImg.draw(0, 500);
+	closingImg.draw(680, 0);
 	ofNoFill();
 	
 
@@ -72,10 +78,15 @@ void ofApp::draw() {
 		contourFinder.blobs[i].draw(360, 540);
 	}
 
+	int numBlobs2 = contourFinder2.nBlobs;
+	for (int i = 0; i < numBlobs; i++) {
+		contourFinder2.blobs[i].draw(680, 0);
+	}
+
 }
 
 void ofApp::exit() {
-	kinect.close();
+	webCam.close();
 }
 
 //--------------------------------------------------------------
