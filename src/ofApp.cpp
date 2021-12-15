@@ -58,10 +58,10 @@ void ofApp::draw() {
 	//texture.draw(0, 0, 640, 480);
 	//ofBackground(100, 100, 100);
 	ofSetHexColor(0xffffff);
-	colorImg.draw(0, 0, 640, 480);    // The incoming color image
-	grayImg.draw(650, 0, 640, 480);  // A gray version of the incoming video
-	grayBg.draw(20, 490);     // The stored background image
-	//grayDiff.draw(360, 280);  // The thresholded difference image
+	colorImg.draw(0, 0, 320, 240);    // The incoming color image
+	grayImg.draw(340, 0, 320, 240);  // A gray version of the incoming video
+	grayBg.draw(20, 250);     // The stored background image
+	grayDiff.draw(340, 250);  // The thresholded difference image
 
 
 	ofNoFill();
@@ -69,7 +69,7 @@ void ofApp::draw() {
 
 	int numBlobs = contourFinder.nBlobs;
 	for (int i = 0; i < numBlobs; i++) {
-		//contourFinder.blobs[i].draw(360, 540);
+		contourFinder.blobs[i].draw(360, 540);
 	}
 
 }
