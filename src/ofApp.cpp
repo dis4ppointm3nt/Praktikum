@@ -2,10 +2,15 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	//kinect.open();
+	// Live Video
+	//webCam.setVerbose(true);
+	//webCam.setup(320, 240);
 
-	webCam.setVerbose(true);
-	webCam.setup(320, 240);
+	//Movie Player
+	videoPlayer.load("movies/Liegen2.mov");
+	videoPlayer.setLoopState(OF_LOOP_NORMAL);
+	videoPlayer.play();
+	
 
 	colorImg.allocate(320, 240);
 	grayImg.allocate(320, 240);
@@ -16,19 +21,32 @@ void ofApp::setup() {
 
 
 	bLearnBackground = true;
-	thresholdValue = 30;
+	thresholdValue = 50;
+	thresh1 = 70;
+	thresh2 = 120;
+	height = 0;
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
-	//kinect.update();
-	webCam.update();
 
-	if (webCam.isFrameNew()) {
+	bool newFrame = false;
+	// Kinect Sensor
+	//kinect.update();
+	//newFrame = kinect.isFrameNew();
+
+	// Webcam
+	//webCam.update();
+	//newFrame = webCam.isFrameNew();
+
+	// Video
+	videoPlayer.update();
+	newFrame = videoPlayer.isFrameNew();
+
+	if (newFrame) {
 		//texture.loadData(kinect.getRgbPixels());
 
-		
-		colorImg.setFromPixels(webCam.getPixels());
+		colorImg.setFromPixels(videoPlayer.getPixels());
 		grayImg.setFromColorImage(colorImg);
 
 		if (bLearnBackground == true) {
@@ -39,7 +57,20 @@ void ofApp::update() {
 
 	grayDiff.blur();
 
-	grayDiff.adaptiveThreshold(3,0);
+	grayDiff.threshold(thresholdValue);
+
+	// Manueller Threshhold
+	/*greyThresh = grayImg.getPixels();
+
+	int numPixels = grayDiff.getWidth() * grayDiff.getHeight();
+	for (int i = 0; i < numPixels; i++) {
+		if (greyThresh[i] < thresh1 && greyThresh[i] > thresh2) {
+			greyThresh[i] = 255;
+		}
+		else {
+			greyThresh[i] = 0;
+		}
+	}*/
 
 	//Dilatation mit einer 3x3 Matrix
 	dilatImg = grayDiff;
@@ -49,8 +80,11 @@ void ofApp::update() {
 	closingImg.erode_3x3();
 
 	contourFinder.findContours(grayDiff, 20, 25000, 10, true);
-	contourFinder2.findContours(closingImg, 20, 25000, 10, true);
+	contourFinder2.findContours(closingImg, 20, (320*240)/4, true, true);
 	}
+
+	height = contourFinder2.blobs.size();
+
 }
 
 //--------------------------------------------------------------
@@ -63,6 +97,7 @@ void ofApp::draw() {
 	*/
 	//texture.draw(0, 0, 640, 480);
 	//ofBackground(100, 100, 100);
+
 	ofSetHexColor(0xffffff);
 	colorImg.draw(0, 0, 320, 240);    // The incoming color image
 	grayImg.draw(340, 0, 320, 240);  // A gray version of the incoming video*
@@ -79,7 +114,7 @@ void ofApp::draw() {
 	}
 
 	int numBlobs2 = contourFinder2.nBlobs;
-	for (int i = 0; i < numBlobs; i++) {
+	for (int i = 0; i < numBlobs2; i++) {
 		contourFinder2.blobs[i].draw(680, 0);
 	}
 

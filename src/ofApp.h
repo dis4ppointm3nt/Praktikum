@@ -29,9 +29,13 @@ public:
 	/*ofTexture grayImg;
 	ofTexture backgroundImg;
 	ofTexture subtractedImg;*/
+
+	ofPixels greyThresh;
 	ofVideoGrabber webCam;
+	ofVideoPlayer videoPlayer;
 	ofxCvColorImage colorImg;
 	ofxCvGrayscaleImage grayImg;
+	ofxCvGrayscaleImage grayImg2;
 	ofxCvGrayscaleImage grayBg;
 	ofxCvGrayscaleImage grayDiff;
 	ofxCvGrayscaleImage dilatImg;
@@ -40,6 +44,9 @@ public:
 	ofxCvContourFinder contourFinder2;
 
 	int						thresholdValue;
+	int						thresh1;
+	int						thresh2;
+	float						height;
 	bool					bLearnBackground;
 
 };
